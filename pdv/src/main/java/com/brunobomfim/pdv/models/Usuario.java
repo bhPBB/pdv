@@ -1,6 +1,7 @@
 package com.brunobomfim.pdv.models;
 
 import jakarta.persistence.*;
+import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
@@ -23,6 +24,6 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @OneToMany(mappedBy = "usuarios")
+    @OneToMany(mappedBy = "usuario")
     private List<Item> itens;
 }

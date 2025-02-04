@@ -3,20 +3,22 @@ package com.brunobomfim.pdv.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.brunobomfim.pdv.services.UsuarioService;
+
 @RestController
 @RequestMapping("/usuarios")
-public class UserController {
+public class UsuarioController {
 
     @Autowired
-    private UserService userService;
+    private UsuarioService ur;
 
     // Endpoint para registrar um novo usuário
     @PostMapping("/registrar")
-    public String registerUser(@RequestParam String email,
+    public String registrarUsuario(@RequestParam String email,
                                @RequestParam String nome,
                                @RequestParam String senha) {
         try {
-            userService.registerUser(email, nome, senha);
+            ur.registrarUsuario(email, nome, senha);
             return "Usuário registrado com sucesso!";
         } catch (Exception e) {
             return "Erro ao registrar o usuário: " + e.getMessage();
@@ -25,9 +27,9 @@ public class UserController {
 
     // Endpoint para autenticar um usuário
     @PostMapping("/login")
-    public String authenticateUser(@RequestParam String email, @RequestParam String senha) {
+    public String autenticarUsuario(@RequestParam String email, @RequestParam String senha) {
         try {
-            boolean autenticado = userService.authenticateUser(email, senha);
+            boolean autenticado = ur.autenticarUsuario(email, senha);
             if (autenticado) {
                 return "Login bem-sucedido!";
             } else {

@@ -1,14 +1,17 @@
 package com.brunobomfim.pdv.services;
 
+import com.brunobomfim.pdv.models.Usuario;
+import com.brunobomfim.pdv.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 @Service
-public class UserService {
+public class UsuarioService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UsuarioRepository ur;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -25,12 +28,12 @@ public class UserService {
         usuario.setSenha(senhaCodificada);
 
         // Salvando o usuário no banco de dados
-        userRepository.save(usuario);
+        ur.save(usuario);
     }
 
     // Método para verificar as credenciais de um usuário
     public boolean autenticarUsuario(String email, String senha) {
-        Usuario usuario = userRepository.findById(email)
+        Usuario usuario = ur.findById(email)
             .orElseThrow(() -> new RuntimeException("Email não cadastrado."));
 
         // Verificando se a senha fornecida bate com a senha armazenada
