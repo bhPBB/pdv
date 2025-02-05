@@ -15,21 +15,27 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
-                .requestMatchers("/login", "/register").permitAll()  // Permite acesso sem login para login e registro
-                .anyRequest().authenticated()  // Requer autenticação para qualquer outra URL
-            .and()
-            .formLogin()
-                .loginPage("/login")  // Página personalizada de login
-                .permitAll()  // Permite acesso à página de login sem autenticação
-            .and()
-            .logout()
-                .permitAll();  // Permite o logout sem autenticação
-        return http.build();  // Retorna a configuração do filtro de segurança
+            .csrf(csrf -> csrf.disable()) // Desativa CSRF temporariamente para testes
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll() // Permite acesso livre
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login") // Página personalizada de login
+                .defaultSuccessUrl("/", true) // Redireciona após login bem-sucedido
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout") // Redireciona após logout
+                .permitAll()
+            );
+
+        return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // Codificação de senha usando BCrypt
+        return new BCryptPasswordEncoder(); // Codificação segura de senha
     }
 }

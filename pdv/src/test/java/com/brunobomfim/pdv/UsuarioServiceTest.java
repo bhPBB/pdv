@@ -2,70 +2,82 @@ package com.brunobomfim.pdv;
 
 import com.brunobomfim.pdv.services.UsuarioService;
 import com.brunobomfim.pdv.models.Usuario;
-import com.brunobomfim.pdv.repositories.UsuarioRepository;
+import com.brunobomfim.pdv.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class UsuarioServiceTest {
 
-    @Mock
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Mock
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
+    @Autowired
     private UsuarioService usuarioService;
 
-    private Usuario usuario;
-    private final String email = "teste@email.com";
-    private final String nome = "Usuário Teste";
-    private final String senha = "senha123";
-    private final String senhaCodificada = "senhaCodificada";
+    private String email = "teste@email.com";
+    private String nome = "Usuário Teste";
+    private String senha = "senha123";
+    private String senhaCodificada = "senhaCodificada";
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario();
-        usuario.setEmail(email);
-        usuario.setNome(nome);
-        usuario.setSenha(senhaCodificada);
+        // Limpar o banco antes de cada teste
+        itemRepository.deleteAll(); 
+        usuarioRepository.deleteAll();
+
+        // Criar e salvar o usuário no banco de dados H2
+        usuarioService.registrarUsuario(email, nome, senha);       
     }
 
     @Test
-    void registrarUsuario_DeveSalvarUsuarioComSenhaCodificada() {
-        // Simula o comportamento do passwordEncoder
-        when(passwordEncoder.encode(senha)).thenReturn(senhaCodificada);
+    void excluirUsuario_DeveExcluirPeloEmail() {
+        //excluindo o usuário
+        usuarioService.excluirUsuario(email);
 
-        // Chama o método que estamos testando
+        // Verificando se o usuário foi excluído
+        assertFalse(usuarioRepository.findById(email).isPresent());
+    }
+
+
+    @Test
+    void registrarUsuario_DeveSalvarUsuarioComSenhaCodificada() {
+        // Usuário para registrar
+        email = "email2@teste.com";
+        nome = "user2";
+        senha = "senha";
+
+        // Chamando o método que estamos testando
         usuarioService.registrarUsuario(email, nome, senha);
 
-        // Verifica se o método save foi chamado com um usuário contendo a senha codificada
-        verify(usuarioRepository).save(argThat(user ->
-            user.getEmail().equals(email) &&
-            user.getNome().equals(nome) &&
-            user.getSenha().equals(senhaCodificada)
-        ));
+        // Recuperando o usuário do banco para verificar
+        Usuario usuarioSalvo = usuarioRepository.findById(email).orElse(null);
+        
+        // Verificando se o usuário foi salvo com a senha codificada
+        assertNotNull(usuarioSalvo);
+        assertEquals(email, usuarioSalvo.getEmail());
+        assertEquals(nome, usuarioSalvo.getNome());
+        assertTrue(passwordEncoder.matches(senha, usuarioSalvo.getSenha())); // Verifica se a senha foi codificada corretamente
     }
 
     @Test
     void autenticarUsuario_DeveRetornarTrue_QuandoSenhaCorreta() {
-        // Simula a busca pelo usuário no repositório
-        when(usuarioRepository.findById(email)).thenReturn(Optional.of(usuario));
-        when(passwordEncoder.matches(senha, senhaCodificada)).thenReturn(true);
-
-        // Chama o método que estamos testando
+        // Chamando o método que estamos testando
         boolean resultado = usuarioService.autenticarUsuario(email, senha);
 
         // Verifica se o retorno foi true
@@ -74,11 +86,7 @@ class UsuarioServiceTest {
 
     @Test
     void autenticarUsuario_DeveRetornarFalse_QuandoSenhaIncorreta() {
-        // Simula a busca pelo usuário no repositório
-        when(usuarioRepository.findById(email)).thenReturn(Optional.of(usuario));
-        when(passwordEncoder.matches("senhaErrada", senhaCodificada)).thenReturn(false);
-
-        // Chama o método que estamos testando
+        // Testa com senha errada
         boolean resultado = usuarioService.autenticarUsuario(email, "senhaErrada");
 
         // Verifica se o retorno foi false
@@ -88,11 +96,11 @@ class UsuarioServiceTest {
     @Test
     void autenticarUsuario_DeveLancarExcecao_QuandoEmailNaoCadastrado() {
         // Simula um usuário não encontrado
-        when(usuarioRepository.findById(email)).thenReturn(Optional.empty());
+        String emailInexistente = "naoexiste@email.com";
 
         // Verifica se a exceção correta é lançada
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
-            usuarioService.autenticarUsuario(email, senha)
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> 
+            usuarioService.autenticarUsuario(emailInexistente, senha)
         );
 
         assertEquals("Email não cadastrado.", exception.getMessage());

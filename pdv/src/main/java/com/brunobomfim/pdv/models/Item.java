@@ -19,7 +19,7 @@ public class Item {
     private String nome;
 
     @Column(nullable = false)
-    private float preco;
+    private double preco;
 
     @Column(nullable = false)
     private int quantidade;

@@ -39,6 +39,11 @@ public class UsuarioService {
         // Verificando se a senha fornecida bate com a senha armazenada
         return passwordEncoder.matches(senha, usuario.getSenha());
     }
+
+    public void excluirUsuario(String email) {
+        ur.deleteById(email);
+    }
+ 
 }
 
 
