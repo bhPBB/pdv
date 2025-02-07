@@ -7,20 +7,19 @@ import java.util.Objects;
 
 @Embeddable
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemPk implements Serializable {
-
-    private String usuarioEmail;
+public class VendaPk implements Serializable {
+    
+    private String usuarioEmail;    
     private Long codigo;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ItemPk itemPk = (ItemPk) o;
-        return Objects.equals(usuarioEmail, itemPk.usuarioEmail) && Objects.equals(codigo, itemPk.codigo);
+        VendaPk vendaPk = (VendaPk) o;
+        return Objects.equals(usuarioEmail, vendaPk.usuarioEmail) && Objects.equals(codigo, vendaPk.codigo);
     }
 
     @Override

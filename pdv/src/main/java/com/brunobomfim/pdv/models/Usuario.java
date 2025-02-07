@@ -11,7 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Usuario {
 
     @Id
@@ -26,4 +25,10 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario")
     private List<Item> itens;
+
+    public Usuario(String email, String nome, String senha) {
+        this.email = email;
+        this.nome = nome;
+        this.senha = senha;
+    }
 }

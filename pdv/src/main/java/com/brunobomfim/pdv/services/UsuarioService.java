@@ -17,18 +17,15 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     // Método para registrar um novo usuário
-    public void registrarUsuario(String email, String nome, String senha) {
+    public Usuario registrarUsuario(String email, String nome, String senha) {
         // Codificando a senha
         String senhaCodificada = passwordEncoder.encode(senha);
 
         // Criando o usuário
-        Usuario usuario = new Usuario();
-        usuario.setEmail(email);
-        usuario.setNome(nome);
-        usuario.setSenha(senhaCodificada);
+        Usuario usuario = new Usuario(email, nome, senhaCodificada);
 
         // Salvando o usuário no banco de dados
-        ur.save(usuario);
+        return ur.save(usuario);
     }
 
     // Método para verificar as credenciais de um usuário
