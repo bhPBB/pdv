@@ -1,5 +1,6 @@
 package com.brunobomfim.pdv;
 
+import com.brunobomfim.pdv.controllers.VendaController;
 import com.brunobomfim.pdv.models.*;
 import com.brunobomfim.pdv.services.VendaService;
 import org.junit.jupiter.api.BeforeEach;
